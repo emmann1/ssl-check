@@ -1,0 +1,23 @@
+{% extends "ciphers/base.html" %}
+
+{% block page_title %}
+    <div class="container">
+	    <h4>Scan a website for SSL errors</h4>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container pt-3 pb-3">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-10 m-auto">
+                    {{ form.site }}
+                </div>
+                <div class="col-2 m-auto">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock page_content %}

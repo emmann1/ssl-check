@@ -1,0 +1,303 @@
+{% extends "ciphers/base.html" %}
+
+{% block page_title %}
+    <div class="container">
+	    <h3>Results:</h3>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+<div class="container pt-3 pb-3">
+    {% if data_present %}
+
+    {% if not scandata %}Could not contact server{% endif %}
+    {% for site_data in scandata %}
+        <h5>Results for {{ site_data.hostname }} resolved to {{ site_data.ip_address }}</h5>
+        {% if site_data.error %}
+        <p>{{ site_data.error.message }}</p>
+        {% endif %}
+        {% if site_data.error %}
+        <p>{{ site_data.error.message }}</p>
+        {% else %}
+        <!-- Certificates table -->
+        {% for cert in site_data.certificate %}
+        <div class="table-responsive-sm">
+          <table class="table table-sm table-striped-columns table-hover">
+            <thead>
+              <tr>
+                <th scope="row">Certificate #{{ forloop.counter0 }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Common Name</th>
+                <td>{{ cert.subject }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Key Type</th>
+                <td>{{ cert.key_type }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Serial Number</th>
+                <td>{{ cert.serial }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Hash Algorithm</th>
+                <td>{{ cert.hash_algorithm }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Issuer</th>
+                <td>{{ cert.issuer }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Received Certificate Chain</th>
+                <td>{% for rec_crt in cert.received_chain %}{{ rec_crt.CN }}{% if not forloop.last %} -> {% endif %}{% endfor %}</td>
+              </tr>
+              <tr>
+                <th scope="row">Verified Certificate Chain</th>
+                <td>{% for rec_crt in cert.verified_chain %}{{ rec_crt.CN }}{% if not forloop.last %} -> {% endif %}{% endfor %}</td>
+              </tr>
+              <tr>
+                <th scope="row">Contains Anchor</th>
+                <td>{{ cert.has_anchor|yesno:"yes,no"|capfirst }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Has valid order</th>
+                <td>{{ cert.has_valid_order|yesno:"yes,no"|capfirst }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Hostname Validation</th>
+                <td>{{ cert.hostname_validation|yesno:"Valid,Invalid" }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Has SHA1 Signature</th>
+                <td>{{ cert.sha1_signature|yesno:"Yes,No" }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Issued Date</th>
+                <td>{{ cert.not_valid_before }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Expiration Date</th>
+                <td>{{ cert.not_valid_after }}</td>
+              </tr>
+              <tr>
+                <th scope="row">OCSP Trusted</th>
+                <td>{{ cert.ocsp_trusted|yesno:"yes,no"|capfirst }}</td>
+              </tr>
+              <tr>
+                <th scope="row">OCSP Status</th>
+                <td>{{ cert.ocsp_status }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Subject Alternative Names</th>
+                <td>{{ cert.san.0|join:", " }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+          {% endfor %}
+          <!-- Trust Certificates table -->
+        {% for trust_cert in site_data.trusted_certificate %}
+        <div class="table-responsive-sm">
+          <table class="table table-sm table-striped-columns table-hover">
+            <thead>
+              <tr>
+                <th scope="row">Trust Certificate #{{ forloop.counter0 }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Common Name</th>
+                <td>{{ trust_cert.subject }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Issuer</th>
+                <td>{{ trust_cert.issuer }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Issued Date</th>
+                <td>{{ trust_cert.not_valid_before }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Expiration Date</th>
+                <td>{{ trust_cert.not_valid_after }}</td>
+              </tr>
+              {% for trust_store in trust_cert.trust_stores %}
+              <tr>
+                <th scope="row">{{ trust_store.name }}</th>
+                <td>{% if trust_store.error != None %}Not Trusted - {{ trust_store.error }}{% else %}Trusted{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+          {% endfor %}
+          <!-- Supported TLS versions table -->
+          <div class="table-responsive-sm">
+          <table class="table table-sm table-striped-columns table-hover">
+            <thead>
+              <tr>
+                <th scope="row">TLS Supported</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for tlsver in alltlsv %}
+              <tr>
+                <th scope="row">{{ tlsver }}</th>
+                <td>{% if tlsver in site_data.supported_tls %}Yes{% else %}No{% endif %}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+          <!-- Supported ciphers table -->
+          <div class="table-responsive-sm">
+          <table class="table table-sm table-striped-columns table-hover">
+            <thead>
+              <tr>
+                <th scope="row">Ciphers Supported</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for ciphers in site_data.supported_ciphers %}
+              <tr>
+                {% for tlsver, cipher in ciphers.items %}
+                <th scope="row">{{ tlsver }}</th>
+              </tr>
+              <tr>
+                <td colspan="2">
+                    <div class="table-responsive-sm">
+                    <table class="table table-sm table-striped-columns table-hover">
+                        <thead>
+                            <tr>
+                              <th scope="col">Name</th>
+                              <th scope="col">Key Size</th>
+                              <th scope="col">Ephemeral Key Type</th>
+                              <th scope="col">Ephemeral Key Size</th>
+                              <th scope="col">Ephemeral Curve Name</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                    {% for item in cipher %}
+                    
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.key_size }}</td>
+                            <td>{{ item.ephemeral_type }}</td>
+                            <td>{{ item.ephemeral_size }}</td>
+                            <td>{{ item.ephemeral_curve_name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+                </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <!-- Security extensions table -->
+        <div class="table-responsive-sm">
+            <table class="table table-sm table-striped-columns table-hover">
+              <thead>
+                <tr>
+                  <th scope="row">Security</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">ECDH Key Exchange</th>
+                  <td>{{ site_data.ecdh_kex_support|yesno:"SUPPORTED,NOT_SUPPORTED" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Elliptic Curves</th>
+                    <td>{{ site_data.ecdsa_supported_curves|join:", " }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Session Renegotiation</th>
+                    <td>{{ site_data.session_renegiotiation_support|yesno:"SUPPORTED,NOT_SUPPORTED" }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Session ID Resumption</th>
+                  <td>{{ site_data.session_resumption }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">TLS Ticket Resumption</th>
+                  <td>{{ site_data.tls_ticket_resumption }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Client Renegotiation Vulnerability</th>
+                  <td>{{ site_data.client_renegotiation_vulnerability|yesno:"VULNERABLE,NOT_VULNERABLE" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Robot Vulnerable</th>
+                    <td>{{ site_data.robot_vulnerability }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Heartbleed Vulnerable</th>
+                    <td>{{ site_data.heartbleed_vulnerability|yesno:"VULNERABLE,NOT_VULNERABLE" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">OpenSSL CCS Vulnerable</th>
+                    <td>{{ site_data.openssl_ccs_injection|yesno:"VULNERABLE,NOT_VULNERABLE" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">TLS Compression</th>
+                    <td>{{ site_data.tls_compression|yesno:"VULNERABLE,NOT_VULNERABLE" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">TLSv1.3 Early</th>
+                    <td>{{ site_data.tls_early|yesno:"SUPPORTED,NOT_SUPPORTED" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">TLS SCSV fallback</th>
+                    <td>{{ site_data.tls_scsv_fallback|yesno:"SUPPORTED,NOT_SUPPORTED" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">HSTS support</th>
+                    <td>{% if site_data.hsts_support != None %}
+                      {% for key, value in site_data.hsts_support.items %}{{ key }}:{{ value }}{% if not forloop.last %},{% endif %}{% endfor %}
+                    {% else %} 
+                    NO_SUPPORT
+                    {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                  <th scope="row">Mozilla SSL checker</th>
+                  <td>{{ site_data.mozilla_checker }}</td>
+                </tr>
+                {% if site_data.mozilla_checker != "Compliant" %}
+                <tr>
+                  <td colspan="2">
+                    <table class="table table-sm table-striped-columns table-hover">
+                      <thead>
+                          <tr>
+                            <th scope="col">Errors</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                      {% for error in site_data.mozilla_errors %}
+                      <tr>
+                          <td>{{ error.error_desc|linebreaks }}</td>
+                      </tr>
+                      {% endfor %}
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                {% endif %}
+              
+                
+              </tbody>
+            </table>
+          </div>
+          
+
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+</div>
+{% endblock page_content %}
