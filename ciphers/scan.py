@@ -100,7 +100,7 @@ class SSLScan:
                         'serial':x.received_certificate_chain[0].serial_number,
                         'issuer':x.received_certificate_chain[0].issuer.rfc4514_string(),
                         'has_anchor':x.received_chain_contains_anchor_certificate,
-                        'hostname_validation':x.leaf_certificate_subject_matches_hostname,
+                        #'hostname_validation':x.leaf_certificate_subject_matches_hostname,
                         'sha1_signature':x.verified_chain_has_sha1_signature,
                         'has_valid_order':x.received_chain_has_valid_order,
                         'hash_algorithm':x.received_certificate_chain[0].signature_hash_algorithm.name,
