@@ -1,3 +1,2 @@
 django==5.0.2
-Pyrebase4
-sslyze==5.2.0
+sslyze==6.0.0
