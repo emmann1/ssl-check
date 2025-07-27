@@ -1,4 +1,4 @@
 django==5.0.2
-pydantic==2.6.4
+pydantic==2.7.3
 pydantic-core==2.18.4
 sslyze==6.0.0
