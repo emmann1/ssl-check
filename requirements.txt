@@ -1,2 +1,2 @@
 django==5.0.2
-sslyze
+sslyze==5.2.0
