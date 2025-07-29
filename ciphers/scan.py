@@ -122,7 +122,7 @@ class SSLScan:
                             'issuer':x.received_certificate_chain[1].issuer.rfc4514_string() if len(x.received_certificate_chain) > 1 else x.received_certificate_chain[0].issuer.rfc4514_string(),
                             'not_valid_before':x.received_certificate_chain[1].not_valid_before.strftime('%Y/%m/%d') if len(x.received_certificate_chain) > 1 else x.received_certificate_chain[0].not_valid_before.strftime('%Y/%m/%d'),
                             'not_valid_after':x.received_certificate_chain[1].not_valid_after.strftime('%Y/%m/%d') if len(x.received_certificate_chain) > 1 else x.received_certificate_chain[0].not_valid_after.strftime('%Y/%m/%d'),
-                            'trust_stores':[{'name': y.trust_store.name, 'error':y.openssl_error_string} for y in x.path_validation_results],
+                            #'trust_stores':[{'name': y.trust_store.name, 'error':y.openssl_error_string} for y in x.path_validation_results],
                         }
                         for x in result.scan_result.certificate_info.result.certificate_deployments
                     ]
