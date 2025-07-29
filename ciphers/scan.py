@@ -100,7 +100,7 @@ class SSLScan:
                         'serial':x.received_certificate_chain[0].serial_number,
                         'issuer':x.received_certificate_chain[0].issuer.rfc4514_string(),
                         'has_anchor':x.received_chain_contains_anchor_certificate,
-                        'hostname_validation':x.path_validation_results.was_validation_successful,
+                        #'hostname_validation':x.path_validation_results.was_validation_successful,
                         'sha1_signature':x.verified_chain_has_sha1_signature,
                         'has_valid_order':x.received_chain_has_valid_order,
                         'hash_algorithm':x.received_certificate_chain[0].signature_hash_algorithm.name,
@@ -122,7 +122,7 @@ class SSLScan:
                             'issuer':x.received_certificate_chain[1].issuer.rfc4514_string() if len(x.received_certificate_chain) > 1 else x.received_certificate_chain[0].issuer.rfc4514_string(),
                             'not_valid_before':x.received_certificate_chain[1].not_valid_before.strftime('%Y/%m/%d') if len(x.received_certificate_chain) > 1 else x.received_certificate_chain[0].not_valid_before.strftime('%Y/%m/%d'),
                             'not_valid_after':x.received_certificate_chain[1].not_valid_after.strftime('%Y/%m/%d') if len(x.received_certificate_chain) > 1 else x.received_certificate_chain[0].not_valid_after.strftime('%Y/%m/%d'),
-                            #'trust_stores':[{'name': y.trust_store.name, 'error':y.openssl_error_string} for y in x.path_validation_results],
+                            'trust_stores':[{'name': y.trust_store.name, 'error':y.validation_error} for y in x.path_validation_results],
                         }
                         for x in result.scan_result.certificate_info.result.certificate_deployments
                     ]
