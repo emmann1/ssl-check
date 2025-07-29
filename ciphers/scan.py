@@ -95,7 +95,7 @@ class SSLScan:
             if result.scan_result.certificate_info.status == ScanCommandAttemptStatusEnum.COMPLETED:
                 server_object['certificate'] = [
                     {
-                        'key_type': x.received_certificate_chain[0].public_key().__class__.__name__[1:] if x.received_certificate_chain[0].public_key() else None,
+                        'key_type': x.received_certificate_chain[0].public_key().__class__.__name__ if x.received_certificate_chain[0].public_key() else None,
                         'subject':x.received_certificate_chain[0].subject.rfc4514_string(),
                         'serial':x.received_certificate_chain[0].serial_number,
                         'issuer':x.received_certificate_chain[0].issuer.rfc4514_string(),
